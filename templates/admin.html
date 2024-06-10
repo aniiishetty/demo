@@ -110,7 +110,7 @@
             <label for="noTabSwitch">Disallow Tab Switching</label>
             <input type="checkbox" id="webcamAccess" name="webcamAccess">
             <label for="webcamAccess">Require Webcam Access</label>
-            <input type="submit" value="Create Test" onclick="redirectToUserLogin()">
+            <input type="submit" value="Create Test">
         </form>
     </div>
 
@@ -153,9 +153,6 @@
                 alert("An error occurred while creating the test.");
             });
         });
-        function redirectToUserLogin() {
-            window.location.href = "/user_login.html";
-        }
     </script>
 </body>
 </html>

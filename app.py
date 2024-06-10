@@ -86,6 +86,7 @@ def create_test():
         "webcam_access": webcam_access
     })
     return redirect(url_for('dashboard'))
+
 @app.route('/fetch_test_time', methods=['GET'])
 def fetch_test_time():
     test_id = request.args.get('testId')
