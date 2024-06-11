@@ -6,20 +6,6 @@ This is a demo project for a web application built with Flask and MongoDB. The a
 
 ## Project Structure
 
-demo-main/
-├── app.py
-└── templates/
-├── admin.html
-├── admin_login.html
-├── admin_signup.html
-├── dashboard.html
-├── finish.html
-├── index.html
-├── user_login.html
-└── user_signup.html
-
-
-
 - **app.py**: The main Python script that runs the server and handles the routing for the web application.
 - **templates/**: A directory containing HTML templates used by the web application.
 
