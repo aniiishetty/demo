@@ -1,47 +1,52 @@
-Demo Project
-Description
+# Demo Project
+
+## Description
+
 This is a demo project for a web application built with Flask and MongoDB. The application includes admin and user login/signup functionalities, along with a dashboard and other related features.
 
-Project Structure
-css
-Copy code
+## Project Structure
+
 demo-main/
 ├── app.py
 └── templates/
-    ├── admin.html
-    ├── admin_login.html
-    ├── admin_signup.html
-    ├── dashboard.html
-    ├── finish.html
-    ├── index.html
-    ├── user_login.html
-    └── user_signup.html
-app.py: The main Python script that runs the server and handles the routing for the web application.
-templates/: A directory containing HTML templates used by the web application.
-Prerequisites
+├── admin.html
+├── admin_login.html
+├── admin_signup.html
+├── dashboard.html
+├── finish.html
+├── index.html
+├── user_login.html
+└── user_signup.html
+
+
+
+- **app.py**: The main Python script that runs the server and handles the routing for the web application.
+- **templates/**: A directory containing HTML templates used by the web application.
+
+## Prerequisites
+
 To run this project, you will need:
 
-Python 3.x
-Flask
-Flask-PyMongo
-MongoDB
-Installation
-Clone the repository or extract the zip file:
+- **Python 3.x**
+- **Flask**
+- **Flask-PyMongo**
+- **MongoDB**
 
-bash
-Copy code
-unzip demo-main.zip
-cd demo-main/demo-main
+## Installation
+
+1. **Clone the repository or extract the zip file**:
+
+   
+   unzip demo-main.zip
+   cd demo-main/demo-main
 Create a virtual environment (optional but recommended):
 
-bash
-Copy code
+
 python -m venv venv
 source venv/bin/activate   # On Windows use `venv\Scripts\activate`
 Install the required packages:
 
-bash
-Copy code
+
 pip install flask flask-pymongo werkzeug
 Set up MongoDB:
 Ensure you have MongoDB installed and running. You can download and install MongoDB from the official MongoDB website.
@@ -49,15 +54,14 @@ Ensure you have MongoDB installed and running. You can download and install Mong
 Update the MongoDB URI:
 Ensure the MongoDB URI in app.py is correctly set to your MongoDB server. By default, it is set to mongodb://localhost:27017/test_platform.
 
-Usage
+# Usage
 Run the application:
 
-bash
-Copy code
+
 python app.py
 Open your web browser and navigate to http://127.0.0.1:5000 to see the web application in action.
 
-File Descriptions
+# File Descriptions
 app.py: Contains the Flask application setup, route definitions, and functions to render the templates.
 
 Routes include:
@@ -81,12 +85,12 @@ templates/user_login.html: HTML template for the user login page.
 
 templates/user_signup.html: HTML template for the user signup page.
 
-Contributing
+# Contributing
 If you wish to contribute to this project, please fork the repository and create a pull request with your changes. Ensure that your code adheres to the existing coding style and conventions.
 
-License
+# License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-Acknowledgements
+# Acknowledgements
 This project uses Flask for building the web application.
 This project uses Flask-PyMongo for MongoDB integration.
