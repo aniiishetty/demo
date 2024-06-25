@@ -37,7 +37,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            width: 250px; 
+            width: 250px;
             height: 100px;
         }
         .login-container, .signup-container {
@@ -142,7 +142,7 @@
     </style>
 </head>
 <body>
-    <img src="https://iimstc.com/wp-content/uploads/2021/10/log.png" alt="Top Left Image" class="top-left-image">
+    <img src="https://iimstc.com/wp-content/uploads/2021/10/log.png" alt="Company Logo" class="top-left-image">
     <div class="container">
         <button onclick="showForm('admin', 'login')">Admin</button>
         <button onclick="showForm('user', 'login')">User</button>
@@ -161,8 +161,8 @@
             <div id="loginErrorMessage" class="error-message"></div>
             <button type="submit">Login</button>
             {% if error %}
-        <p class="error-message">{{ error }}</p>
-    {% endif %}
+                <p class="error-message">{{ error }}</p>
+            {% endif %}
         </form>
         <p>Don't have an account? <a href="#" onclick="showForm(currentRole, 'signup')">Sign Up</a></p>
     </div>
@@ -184,72 +184,116 @@
         </form>
         <p>Already have an account? <a href="#" onclick="showForm(currentRole, 'login')">Login</a></p>
     </div>
+<script>
 
-    <script>
-        let currentRole = '';
+    let currentRole = '';
 
-        function showForm(role, formType) {
-            currentRole = role;
-            const loginContainer = document.getElementById('loginContainer');
-            const signupContainer = document.getElementById('signupContainer');
-            const loginForm = document.getElementById('loginForm');
-            const signupForm = document.getElementById('signupForm');
-            const loginTitle = document.getElementById('loginTitle');
-            const signupTitle = document.getElementById('signupTitle');
-            const loginErrorMessage = document.getElementById('loginErrorMessage');
-            const signupErrorMessage = document.getElementById('signupErrorMessage');
+function showForm(role, formType) {
+  currentRole = role;
+  const loginContainer = document.getElementById('loginContainer');
+  const signupContainer = document.getElementById('signupContainer');
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const loginTitle = document.getElementById('loginTitle');
+  const signupTitle = document.getElementById('signupTitle');
+  const loginErrorMessage = document.getElementById('loginErrorMessage');
+  const signupErrorMessage = document.getElementById('signupErrorMessage');
 
-            loginErrorMessage.textContent = '';
-            signupErrorMessage.textContent = '';
+  loginErrorMessage.textContent = '';
+  signupErrorMessage.textContent = '';
 
-            if (formType === 'login') {
-                loginForm.action = role === 'admin' ? '/admin_login' : '/user_login';
-                loginTitle.textContent = role === 'admin' ? 'Admin Login' : 'User Login';
-                loginContainer.style.display = 'block';
-                signupContainer.style.display = 'none';
-            } else {
-                signupForm.action = role === 'admin' ? '/admin_signup' : '/user_signup';
-                signupTitle.textContent = role === 'admin' ? 'Admin Sign Up' : 'User Sign Up';
-                loginContainer.style.display = 'none';
-                signupContainer.style.display = 'block';
-            }
+  if (formType === 'login') {
+    loginForm.action = role === 'admin'? '/admin_login' : '/user_login';
+    loginTitle.textContent = role === 'admin'? 'Admin Login' : 'User Login';
+    loginContainer.style.display = 'block';
+    signupContainer.style.display = 'none';
+  } else {
+    signupForm.action = role === 'admin'? '/admin_signup' : '/user_signup';
+    signupTitle.textContent = role === 'admin'? 'Admin Sign Up' : 'User Sign Up';
+    loginContainer.style.display = 'none';
+    signupContainer.style.display = 'block';
+  }
+}
+
+function togglePasswordVisibility(inputId, checkboxId) {
+  const passwordInput = document.getElementById(inputId);
+  const checkbox = document.getElementById(checkboxId);
+
+  if (passwordInput && checkbox) {
+    passwordInput.type = checkbox.checked? 'text' : 'password';
+  }
+}
+
+function showError(containerId, message) {
+  const errorContainer = document.getElementById(containerId);
+  errorContainer.textContent = message;
+}
+
+function submitForm(formId, role) {
+  const form = document.getElementById(formId);
+  const formData = new FormData(form);
+  const jsonData = {};
+  for (const [key, value] of formData.entries()) {
+    jsonData[key] = value;
+  }
+
+  fetch(form.action, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(jsonData)
+  })
+ .then(response => response.json())
+ .then(data => {
+    if (data.error) {
+      showError(formId === 'loginForm'? 'loginErrorMessage' : 'ignupErrorMessage', data.error);
+    } else {
+      if (data.success) {
+        if (role === 'admin') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/test';
         }
+      } else {
+        showError(formId === 'loginForm'? 'loginErrorMessage' : 'ignupErrorMessage', data.message);
+      }
+    }
+  })
+ .catch(error => {
+    showError(formId === 'loginForm'? 'loginErrorMessage' : 'ignupErrorMessage', 'An error occurred. Please try again.');
+  });
+}
 
-        function togglePasswordVisibility(inputId, checkboxId) {
-            const passwordInput = document.getElementById(inputId);
-            const checkbox = document.getElementById(checkboxId);
+document.addEventListener('DOMContentLoaded', function() {
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const loginCheckbox = document.getElementById('showLoginPasswordCheckbox');
+  const signupCheckbox = document.getElementById('showSignupPasswordCheckbox');
 
-            if (passwordInput && checkbox) {
-                passwordInput.type = checkbox.checked ? 'text' : 'password';
-            }
-        }
+  loginForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    submitForm('loginForm', currentRole);
+  });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginCheckbox = document.getElementById('showLoginPasswordCheckbox');
-            const signupCheckbox = document.getElementById('showSignupPasswordCheckbox');
+  signupForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    submitForm('signupForm', currentRole);
+  });
 
-            if (loginCheckbox) {
-                loginCheckbox.addEventListener('change', function() {
-                    togglePasswordVisibility('loginPassword', 'showLoginPasswordCheckbox');
-                });
-            }
+  if (loginCheckbox) {
+    loginCheckbox.addEventListener('change', function() {
+      togglePasswordVisibility('loginPassword', 'howLoginPasswordCheckbox');
+    });
+  }
 
-            if (signupCheckbox) {
-                signupCheckbox.addEventListener('change', function() {
-                    togglePasswordVisibility('signupPassword', 'showSignupPasswordCheckbox');
-                });
-            }
-        });
-
-        function showError(containerId, message) {
-            const errorContainer = document.getElementById(containerId);
-            errorContainer.textContent = message;
-        }
-
-        // Example usage: Call this function when invalid credentials are detected
-        function handleInvalidCredentials() {
-            showError('loginErrorMessage', 'Invalid Credentials, please enter correct username and password.');
-        }
-    </script>
+  if (signupCheckbox) {
+    signupCheckbox.addEventListener('change', function() {
+      togglePasswordVisibility('signupPassword', 'howSignupPasswordCheckbox');
+    });
+  }
+});
+</script>
+    
 </body>
 </html>
