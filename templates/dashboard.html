@@ -11,14 +11,17 @@
             padding: 0;
             background: url('https://iimstc.com/wp-content/uploads/slider/cache/e0a4105f14d43d1eae165e5b1f24238b/slider23.jpg') no-repeat center center fixed;
             background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             position: relative;
         }
+        
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
             text-align: center;
         }
+        
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -28,11 +31,18 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 10px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
+        
         button:hover {
             background-color: #0056b3;
         }
+        
+        button.active {
+            background-color: #28a745;
+            transform: scale(1.1);
+        }
+        
         .top-left-image {
             position: absolute;
             top: 10px;
@@ -40,30 +50,35 @@
             width: 250px; 
             height: 100px;
         }
+        
         .login-container, .signup-container {
             display: none;
             width: 100%;
             max-width: 400px;
             padding: 30px;
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: rgba(255, 255, 255, 0.6);
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             margin: 0 auto;
         }
+        
         .login-container h2, .signup-container h2 {
             text-align: center;
             margin-bottom: 20px;
             color: #333;
         }
+        
         form {
             display: flex;
             flex-direction: column;
         }
+        
         label {
             margin-bottom: 8px;
             font-weight: bold;
             color: #555;
         }
+        
         input[type="text"],
         input[type="password"],
         input[type="email"] {
@@ -74,12 +89,14 @@
             font-size: 16px;
             transition: border-color 0.3s ease;
         }
+        
         input[type="text"]:focus,
         input[type="password"]:focus,
         input[type="email"]:focus {
             outline: none;
             border-color: #007bff;
         }
+        
         button[type="submit"] {
             padding: 12px;
             font-size: 16px;
@@ -90,30 +107,37 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+        
         button[type="submit"]:hover {
             background-color: #0056b3;
         }
+        
         .show-password {
             margin-top: 10px;
             display: flex;
             align-items: center;
         }
+        
         .show-password input {
             margin-right: 8px;
         }
+        
         .login-container p, .signup-container p {
             margin-top: 15px;
             text-align: center;
             color: #555;
         }
+        
         .login-container a, .signup-container a {
             color: #007bff;
             text-decoration: none;
             transition: color 0.3s ease;
         }
+        
         .login-container a:hover, .signup-container a:hover {
             color: #0056b3;
         }
+        
         .error-message {
             color: red;
             font-weight: bold;
@@ -139,6 +163,7 @@
                 padding: 10px;
             }
         }
+        
     </style>
 </head>
 <body>
@@ -188,68 +213,84 @@
     <script>
         let currentRole = '';
 
-        function showForm(role, formType) {
-            currentRole = role;
-            const loginContainer = document.getElementById('loginContainer');
-            const signupContainer = document.getElementById('signupContainer');
-            const loginForm = document.getElementById('loginForm');
-            const signupForm = document.getElementById('signupForm');
-            const loginTitle = document.getElementById('loginTitle');
-            const signupTitle = document.getElementById('signupTitle');
-            const loginErrorMessage = document.getElementById('loginErrorMessage');
-            const signupErrorMessage = document.getElementById('signupErrorMessage');
+function showForm(role, formType) {
+    currentRole = role;
+    const loginContainer = document.getElementById('loginContainer');
+    const signupContainer = document.getElementById('signupContainer');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const loginTitle = document.getElementById('loginTitle');
+    const signupTitle = document.getElementById('signupTitle');
+    const loginErrorMessage = document.getElementById('loginErrorMessage');
+    const signupErrorMessage = document.getElementById('signupErrorMessage');
 
-            loginErrorMessage.textContent = '';
-            signupErrorMessage.textContent = '';
+    loginErrorMessage.textContent = '';
+    signupErrorMessage.textContent = '';
 
-            if (formType === 'login') {
-                loginForm.action = role === 'admin' ? '/admin_login' : '/user_login';
-                loginTitle.textContent = role === 'admin' ? 'Admin Login' : 'User Login';
-                loginContainer.style.display = 'block';
-                signupContainer.style.display = 'none';
-            } else {
-                signupForm.action = role === 'admin' ? '/admin_signup' : '/user_signup';
-                signupTitle.textContent = role === 'admin' ? 'Admin Sign Up' : 'User Sign Up';
-                loginContainer.style.display = 'none';
-                signupContainer.style.display = 'block';
-            }
-        }
+    if (formType === 'login') {
+        loginForm.action = role === 'admin' ? '/admin_login' : '/user_login';
+        loginTitle.textContent = role === 'admin' ? 'Admin Login' : 'User Login';
+        loginContainer.style.display = 'block';
+        signupContainer.style.display = 'none';
+    } else {
+        signupForm.action = role === 'admin' ? '/admin_signup' : '/user_signup';
+        signupTitle.textContent = role === 'admin' ? 'Admin Sign Up' : 'User Sign Up';
+        loginContainer.style.display = 'none';
+        signupContainer.style.display = 'block';
+    }
 
-        function togglePasswordVisibility(inputId, checkboxId) {
-            const passwordInput = document.getElementById(inputId);
-            const checkbox = document.getElementById(checkboxId);
+    highlightButton(role);
+}
 
-            if (passwordInput && checkbox) {
-                passwordInput.type = checkbox.checked ? 'text' : 'password';
-            }
-        }
+function togglePasswordVisibility(inputId, checkboxId) {
+    const passwordInput = document.getElementById(inputId);
+    const checkbox = document.getElementById(checkboxId);
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginCheckbox = document.getElementById('showLoginPasswordCheckbox');
-            const signupCheckbox = document.getElementById('showSignupPasswordCheckbox');
+    if (passwordInput && checkbox) {
+        passwordInput.type = checkbox.checked ? 'text' : 'password';
+    }
+}
 
-            if (loginCheckbox) {
-                loginCheckbox.addEventListener('change', function() {
-                    togglePasswordVisibility('loginPassword', 'showLoginPasswordCheckbox');
-                });
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    const loginCheckbox = document.getElementById('showLoginPasswordCheckbox');
+    const signupCheckbox = document.getElementById('showSignupPasswordCheckbox');
 
-            if (signupCheckbox) {
-                signupCheckbox.addEventListener('change', function() {
-                    togglePasswordVisibility('signupPassword', 'showSignupPasswordCheckbox');
-                });
-            }
+    if (loginCheckbox) {
+        loginCheckbox.addEventListener('change', function() {
+            togglePasswordVisibility('loginPassword', 'showLoginPasswordCheckbox');
         });
+    }
 
-        function showError(containerId, message) {
-            const errorContainer = document.getElementById(containerId);
-            errorContainer.textContent = message;
-        }
+    if (signupCheckbox) {
+        signupCheckbox.addEventListener('change', function() {
+            togglePasswordVisibility('signupPassword', 'showSignupPasswordCheckbox');
+        });
+    }
+});
 
-        // Example usage: Call this function when invalid credentials are detected
-        function handleInvalidCredentials() {
-            showError('loginErrorMessage', 'Invalid Credentials, please enter correct username and password.');
-        }
+function showError(containerId, message) {
+    const errorContainer = document.getElementById(containerId);
+    errorContainer.textContent = message;
+}
+
+// Example usage: Call this function when invalid credentials are detected
+function handleInvalidCredentials() {
+    showError('loginErrorMessage', 'Invalid Credentials, please enter correct username and password.');
+}
+
+function highlightButton(role) {
+    const adminButton = document.querySelector('button[onclick*="admin"]');
+    const userButton = document.querySelector('button[onclick*="user"]');
+
+    if (role === 'admin') {
+        adminButton.classList.add('active');
+        userButton.classList.remove('active');
+    } else if (role === 'user') {
+        userButton.classList.add('active');
+        adminButton.classList.remove('active');
+    }
+}
+
     </script>
 </body>
 </html>
