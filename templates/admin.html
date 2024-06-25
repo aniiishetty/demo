@@ -11,7 +11,7 @@
             padding: 0;
             background-color: #f7f7f7;
         }
-        .container {
+       .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
@@ -63,9 +63,24 @@
             margin-bottom: 20px;
             display: none;
         }
+       .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+       .logout-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
+    <button class="logout-button" onclick="location.href='/logout'">Logout</button>
     <div class="container">
         <h1>Admin Interface</h1>
 
@@ -112,6 +127,11 @@
             <label for="webcamAccess">Require Webcam Access</label>
             <input type="submit" value="Create Test">
         </form>
+
+        <!-- Alert for successful test creation -->
+        <div id="alertTestSuccess">
+            <p>Test created successfully!</p>
+        </div>
     </div>
 
     <script>
@@ -143,7 +163,10 @@
                 body: new FormData(this)
             }).then(response => {
                 if (response.ok) {
-                    alert("Test created successfully!");
+                    document.getElementById("alertTestSuccess").style.display = "block";
+                    setTimeout(function() {
+                        document.getElementById("alertTestSuccess").style.display = "none";
+                    }, 3000);
                     this.reset();
                 } else {
                     alert("Failed to create test. Please try again.");

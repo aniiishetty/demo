@@ -9,7 +9,9 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f7f7f7;
+            background: url('https://iimstc.com/wp-content/uploads/slider/cache/e0a4105f14d43d1eae165e5b1f24238b/slider23.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
         }
         .container {
             max-width: 800px;
@@ -31,13 +33,223 @@
         button:hover {
             background-color: #0056b3;
         }
+        .top-left-image {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 250px; 
+            height: 100px;
+        }
+        .login-container, .signup-container {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+        .login-container h2, .signup-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        button[type="submit"] {
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .show-password {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .show-password input {
+            margin-right: 8px;
+        }
+        .login-container p, .signup-container p {
+            margin-top: 15px;
+            text-align: center;
+            color: #555;
+        }
+        .login-container a, .signup-container a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .login-container a:hover, .signup-container a:hover {
+            color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container, .signup-container {
+                padding: 20px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            input[type="text"],
+            input[type="password"],
+            input[type="email"] {
+                font-size: 14px;
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            button[type="submit"] {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
+    <img src="https://iimstc.com/wp-content/uploads/2021/10/log.png" alt="Top Left Image" class="top-left-image">
     <div class="container">
-        <h1>Dashboard</h1>
-        <button onclick="window.location.href='/admin_login'">Admin</button>
-        <button onclick="window.location.href='/user_login'">User</button>
+        <button onclick="showForm('admin', 'login')">Admin</button>
+        <button onclick="showForm('user', 'login')">User</button>
     </div>
+    <div id="loginContainer" class="login-container">
+        <h2 id="loginTitle">Login</h2>
+        <form id="loginForm" method="POST" action="">
+            <label for="loginUsername">Username:</label>
+            <input type="text" id="loginUsername" name="username" required>
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" name="password" required>
+            <div class="show-password">
+                <input type="checkbox" id="showLoginPasswordCheckbox">
+                <label for="showLoginPasswordCheckbox">Show Password</label>
+            </div>
+            <div id="loginErrorMessage" class="error-message"></div>
+            <button type="submit">Login</button>
+            {% if error %}
+        <p class="error-message">{{ error }}</p>
+    {% endif %}
+        </form>
+        <p>Don't have an account? <a href="#" onclick="showForm(currentRole, 'signup')">Sign Up</a></p>
+    </div>
+    <div id="signupContainer" class="signup-container">
+        <h2 id="signupTitle">Sign Up</h2>
+        <form id="signupForm" method="POST" action="">
+            <label for="signupUsername">Username:</label>
+            <input type="text" id="signupUsername" name="username" required>
+            <label for="signupEmail">Email:</label>
+            <input type="email" id="signupEmail" name="email" required>
+            <label for="signupPassword">Password:</label>
+            <input type="password" id="signupPassword" name="password" required>
+            <div class="show-password">
+                <input type="checkbox" id="showSignupPasswordCheckbox">
+                <label for="showSignupPasswordCheckbox">Show Password</label>
+            </div>
+            <div id="signupErrorMessage" class="error-message"></div>
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="#" onclick="showForm(currentRole, 'login')">Login</a></p>
+    </div>
+
+    <script>
+        let currentRole = '';
+
+        function showForm(role, formType) {
+            currentRole = role;
+            const loginContainer = document.getElementById('loginContainer');
+            const signupContainer = document.getElementById('signupContainer');
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginTitle = document.getElementById('loginTitle');
+            const signupTitle = document.getElementById('signupTitle');
+            const loginErrorMessage = document.getElementById('loginErrorMessage');
+            const signupErrorMessage = document.getElementById('signupErrorMessage');
+
+            loginErrorMessage.textContent = '';
+            signupErrorMessage.textContent = '';
+
+            if (formType === 'login') {
+                loginForm.action = role === 'admin' ? '/admin_login' : '/user_login';
+                loginTitle.textContent = role === 'admin' ? 'Admin Login' : 'User Login';
+                loginContainer.style.display = 'block';
+                signupContainer.style.display = 'none';
+            } else {
+                signupForm.action = role === 'admin' ? '/admin_signup' : '/user_signup';
+                signupTitle.textContent = role === 'admin' ? 'Admin Sign Up' : 'User Sign Up';
+                loginContainer.style.display = 'none';
+                signupContainer.style.display = 'block';
+            }
+        }
+
+        function togglePasswordVisibility(inputId, checkboxId) {
+            const passwordInput = document.getElementById(inputId);
+            const checkbox = document.getElementById(checkboxId);
+
+            if (passwordInput && checkbox) {
+                passwordInput.type = checkbox.checked ? 'text' : 'password';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginCheckbox = document.getElementById('showLoginPasswordCheckbox');
+            const signupCheckbox = document.getElementById('showSignupPasswordCheckbox');
+
+            if (loginCheckbox) {
+                loginCheckbox.addEventListener('change', function() {
+                    togglePasswordVisibility('loginPassword', 'showLoginPasswordCheckbox');
+                });
+            }
+
+            if (signupCheckbox) {
+                signupCheckbox.addEventListener('change', function() {
+                    togglePasswordVisibility('signupPassword', 'showSignupPasswordCheckbox');
+                });
+            }
+        });
+
+        function showError(containerId, message) {
+            const errorContainer = document.getElementById(containerId);
+            errorContainer.textContent = message;
+        }
+
+        // Example usage: Call this function when invalid credentials are detected
+        function handleInvalidCredentials() {
+            showError('loginErrorMessage', 'Invalid Credentials, please enter correct username and password.');
+        }
+    </script>
 </body>
 </html>

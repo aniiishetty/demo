@@ -1,76 +1,73 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from flask_pymongo import PyMongo
 from werkzeug.security import generate_password_hash, check_password_hash
+from bson import ObjectId
 import signal
 import sys
-from bson import ObjectId
-
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 app.config["MONGO_URI"] = "mongodb://localhost:27017/test_platform"
 
-try:
-    mongo = PyMongo(app)
-    mongo.db.command('ping')  # Check if MongoDB server is reachable
-except pymongo.errors.ConnectionError as e:
-    print(f"Error connecting to MongoDB: {e}")
-    sys.exit(1)
+mongo = PyMongo(app)
 
+# Route for dashboard
 @app.route('/')
 def dashboard():
-    return render_template('dashboard.html')
+    error = session.pop('error', None)  # Get and clear error message from session
+    message = session.pop('message', None)  # Get and clear success message from session
+    return render_template('dashboard.html', error=error, message=message)
 
-@app.route('/admin_login', methods=['GET', 'POST'])
+# Route for admin login
+@app.route('/admin_login', methods=['POST'])
 def admin_login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        admin = mongo.db.admins.find_one({'username': username})
-        if admin and check_password_hash(admin['password'], password):
-            session['admin'] = username
-            return redirect(url_for('admin'))
-        else:
-            return "Invalid credentials"
-    return render_template('admin_login.html')
+    username = request.json['username']
+    password = request.json['password']
+    admin = mongo.db.admins.find_one({'username': username})
+    if admin and check_password_hash(admin['password'], password):
+        session['admin'] = username
+        return jsonify({'success': True, 'redirect': url_for('admin')})
+    else:
+        return jsonify({'error': 'Invalid admin credentials, please try again.'})
 
-@app.route('/admin_signup', methods=['GET', 'POST'])
+# Route for admin signup
+@app.route('/admin_signup', methods=['POST'])
 def admin_signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = generate_password_hash(request.form['password'])
-        mongo.db.admins.insert_one({'username': username, 'password': password})
-        return redirect(url_for('admin_login'))
-    return render_template('admin_signup.html')
+    username = request.form['username']
+    password = generate_password_hash(request.form['password'])
+    mongo.db.admins.insert_one({'username': username, 'password': password})
+    session['message'] = f"Admin account '{username}' successfully created. Please login."
+    return redirect(url_for('admin_login'))
 
-@app.route('/user_login', methods=['GET', 'POST'])
+# Route for user login
+@app.route('/user_login', methods=['POST'])
 def user_login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = mongo.db.users.find_one({'username': username})
-        if user and check_password_hash(user['password'], password):
-            session['user'] = username
-            return redirect(url_for('test'))
-        else:
-            return "Invalid credentials"
-    return render_template('user_login.html')
+    username = request.json['username']
+    password = request.json['password']
+    user = mongo.db.users.find_one({'username': username})
+    if user and check_password_hash(user['password'], password):
+        session['user'] = username
+        return jsonify({'success': True, 'edirect': url_for('test')})
+    else:
+        return jsonify({'error': 'Invalid user credentials, please try again.'})
 
-@app.route('/user_signup', methods=['GET', 'POST'])
+# Route for user signup
+@app.route('/user_signup', methods=['POST'])
 def user_signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = generate_password_hash(request.form['password'])
-        mongo.db.users.insert_one({'username': username, 'password': password})
-        return redirect(url_for('user_login'))
-    return render_template('user_signup.html')
+    username = request.form['username']
+    password = generate_password_hash(request.form['password'])
+    mongo.db.users.insert_one({'username': username, 'password': password})
+    session['message'] = f"User account '{username}' successfully created. Please login."
+    return redirect(url_for('user_login'))
 
+# Route for admin dashboard
 @app.route('/admin')
 def admin():
     if 'admin' not in session:
         return redirect(url_for('admin_login'))
     return render_template('admin.html')
 
+# Route to create a test
 @app.route('/create_test', methods=['POST'])
 def create_test():
     if 'admin' not in session:
@@ -87,6 +84,7 @@ def create_test():
     })
     return redirect(url_for('dashboard'))
 
+# Route to fetch test time
 @app.route('/fetch_test_time', methods=['GET'])
 def fetch_test_time():
     test_id = request.args.get('testId')
@@ -96,13 +94,14 @@ def fetch_test_time():
     else:
         return "Test not found", 404
 
-
+# Route for user test
 @app.route('/test')
 def test():
     if 'user' not in session:
         return redirect(url_for('user_login'))
     return render_template('index.html')
 
+# Route to add a question
 @app.route('/add_question', methods=['POST'])
 def add_question():
     if 'admin' not in session:
@@ -121,27 +120,51 @@ def add_question():
     mongo.db.questions.insert_one(question)
     return jsonify({'message': 'Question added successfully!'}), 200
 
+# Route to fetch questions
 @app.route('/fetch_questions', methods=['GET'])
 def fetch_questions():
     test_id = request.args.get('testId')
     questions_from_db = list(mongo.db.questions.find({"test_id": test_id}))
     for question in questions_from_db:
         question['_id'] = str(question['_id'])
-    return jsonify(questions_from_db), 200
+    return jsonify(questions_from_db)
 
+# Route to submit test
+@app.route('/submit_test', methods=['POST'])
+def submit_test():
+    if 'user' not in session:
+        return redirect(url_for('user_login'))
+    test_id = request.form['testId']
+    answers = request.form.getlist('answers[]')
+    correct_answers = []
+    questions = list(mongo.db.questions.find({"test_id": test_id}))
+    for question in questions:
+        correct_answers.append(question['correct_answer'])
+    score = sum([1 for i in range(len(answers)) if answers[i] == correct_answers[i]])
+    mongo.db.submissions.insert_one({
+        "test_id": test_id,
+        "user_id": session['user'],
+        "score": score
+    })
+    return jsonify({'message': 'Test submitted successfully!'})
+
+# Route to fetch submissions
+@app.route('/fetch_submissions', methods=['GET'])
+def fetch_submissions():
+    if 'admin' not in session:
+        return redirect(url_for('admin_login'))
+    submissions_from_db = list(mongo.db.submissions.find())
+    for submission in submissions_from_db:
+        submission['_id'] = str(submission['_id'])
+    return jsonify(submissions_from_db)
+
+# Route to logout
 @app.route('/logout')
 def logout():
-    session.clear()
+    session.pop('admin', None)
+    session.pop('user', None)
     return redirect(url_for('dashboard'))
 
-@app.route('/finish.html')
-def finish():
-    return render_template('finish.html')
-
-def signal_handler(sig, frame):
-    print('Shutting down gracefully...')
-    sys.exit(0)
-
 if __name__ == '__main__':
-    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGINT, lambda s, f: sys.exit(0))
     app.run(debug=True)
